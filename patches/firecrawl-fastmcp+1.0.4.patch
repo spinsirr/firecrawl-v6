@@ -1,0 +1,55 @@
+diff --git a/node_modules/firecrawl-fastmcp/dist/FastMCP.js b/node_modules/firecrawl-fastmcp/dist/FastMCP.js
+index 6976e4a..c97749f 100644
+--- a/node_modules/firecrawl-fastmcp/dist/FastMCP.js
++++ b/node_modules/firecrawl-fastmcp/dist/FastMCP.js
+@@ -23,6 +23,14 @@ import { setTimeout as delay } from "timers/promises";
+ import parseURITemplate from "uri-templates";
+ import { toJsonSchema } from "xsschema";
+ import { z } from "zod";
++var formatHostForUrl = (host) => {
++  // IPv6 addresses need to be wrapped in brackets for URLs
++  // Check if it's an IPv6 address (contains colons but isn't already bracketed)
++  if (host && host.includes(':') && !host.startsWith('[')) {
++    return `[${host}]`;
++  }
++  return host;
++};
+ var imageContent = async (input) => {
+   let rawData;
+   try {
+@@ -1131,7 +1139,7 @@ var FastMCP = class extends FastMCPEventEmitter {
+       const httpConfig = config.httpStream;
+       if (httpConfig.stateless) {
+         this.#logger.info(
+-          `[FastMCP info] Starting server in stateless mode on HTTP Stream at http://${httpConfig.host}:${httpConfig.port}${httpConfig.endpoint}`
++          `[FastMCP info] Starting server in stateless mode on HTTP Stream at http://${formatHostForUrl(httpConfig.host)}:${httpConfig.port}${httpConfig.endpoint}`
+         );
+         this.#httpStreamServer = await startHTTPServer({
+           createServer: async (request) => {
+@@ -1197,7 +1205,7 @@ var FastMCP = class extends FastMCPEventEmitter {
+           streamEndpoint: httpConfig.endpoint
+         });
+         this.#logger.info(
+-          `[FastMCP info] server is running on HTTP Stream at http://${httpConfig.host}:${httpConfig.port}${httpConfig.endpoint}`
++          `[FastMCP info] server is running on HTTP Stream at http://${formatHostForUrl(httpConfig.host)}:${httpConfig.port}${httpConfig.endpoint}`
+         );
+         this.#logger.info(
+           `[FastMCP info] Transport type: httpStream (Streamable HTTP, not SSE)`
+@@ -1247,7 +1255,7 @@ var FastMCP = class extends FastMCPEventEmitter {
+     const enabled = healthConfig.enabled === void 0 ? true : healthConfig.enabled;
+     if (enabled) {
+       const path = healthConfig.path ?? "/health";
+-      const url = new URL(req.url || "", `http://${host}`);
++      const url = new URL(req.url || "", `http://${formatHostForUrl(host)}`);
+       try {
+         if (req.method === "GET" && url.pathname === path) {
+           res.writeHead(healthConfig.status ?? 200, {
+@@ -1289,7 +1297,7 @@ var FastMCP = class extends FastMCPEventEmitter {
+     }
+     const oauthConfig = this.#options.oauth;
+     if (oauthConfig?.enabled && req.method === "GET") {
+-      const url = new URL(req.url || "", `http://${host}`);
++      const url = new URL(req.url || "", `http://${formatHostForUrl(host)}`);
+       if (url.pathname === "/.well-known/oauth-authorization-server" && oauthConfig.authorizationServer) {
+         const metadata = convertObjectToSnakeCase(
+           oauthConfig.authorizationServer

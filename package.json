@@ -23,6 +23,7 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write .",
     "prepare": "npm run build",
+    "postinstall": "patch-package",
     "publish-prod": "npm run build && npm publish",
     "publish-beta": "npm run build && npm publish --tag beta"
   },
@@ -54,6 +55,7 @@
   },
   "homepage": "https://github.com/firecrawl/firecrawl-mcp-server#readme",
   "devDependencies": {
-    "@types/node": "^24.3.1"
+    "@types/node": "^24.3.1",
+    "patch-package": "^8.0.1"
   }
 }
